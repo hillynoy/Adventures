@@ -85,7 +85,7 @@ Adventures.initAdventure = function(){
 
     $.ajax("/start",{
         type: "POST",
-        data: {"user":
+        data: {"name":
             $("#nameField").val(),
             "adventure_id": $(this).val()
         },
