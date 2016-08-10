@@ -65,7 +65,7 @@ def start():
             current_story_id = cursor.fetchone()
             print(sql3)
 
-            sql4 = "SELECT opt_text FROM options o LEFT JOIN questions q on o.question_id = q.id join users u on q.id=u.last_current_question and u.id=0".format(current_question_id)
+            sql4 = "SELECT opt_text FROM options o LEFT JOIN questions q on o.question_id = q.id join users u on q.id=u.last_current_question and u.id='{}'".format(current_question_id)
             cursor.execute(sql4)
             option_text= cursor.fetchall()
             print(sql4)
@@ -75,12 +75,18 @@ def start():
             picture = cursor.fetchall()
             print(sql5)
 
+            sql6 = "SELECT target_question FROM options WHERE question_id =(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
+            cursor.execute(sql6)
+            next_steps_results = cursor.fetchall()
+            print(sql6)
+
+
             return json.dumps({"user": user_id,
                                "adventure": current_adv_id,
                                "current": current_story_id,
                                "text": option_text,
                                "image": picture,
-                               # "options": next_steps_results
+                               "options": next_steps_results
                                })
 
 
