@@ -15,20 +15,20 @@ def start():
     current_adv_id = request.POST.get("adventure_id")
 
 
-    user_id = 0 #todo check if exists and if not create it
-    print('Hello ')
+    # user_id = 0 #todo check if exists and if not create it
     connection = pymysql.connect(host='localhost',
                                  user='root',
                                  password='',
                                  db='adventure',
                                  cursorclass=pymysql.cursors.DictCursor)
-    print('Hello fucker')
+
+
     with connection.cursor() as cursor:
         sql = "SELECT * FROM users WHERE name = '{}'".format('username')
         cursor.execute(sql)
         result = cursor.fetchall()
         print(json.dumps(result))
-        print("yea")
+
         #if user already exists get his info
         if len(result) > 0:
             user = result[0]
@@ -36,7 +36,7 @@ def start():
             name = user['name']
             questionId = user['last_current_question']
 
-            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}'".format('id')
+            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}'".format(id)
             cursor.execute(sql)
             result = cursor.fetchall()
             return result
@@ -53,7 +53,7 @@ def start():
             connection.commit()
             print(sql)
 
-            sql2 = "SELECT id FROM users WHERE name = '{}'".format('username')
+            sql2 = "SELECT id FROM users WHERE name = '{}'".format(username)
             cursor.execute(sql2)
             print('Your are killing my brain')
             user_id = cursor.fetchone()
@@ -101,6 +101,8 @@ def start():
 
     #todo add the next step based on db
 
+    connection.close
+
 
 
 @route("/story", method="POST")
@@ -108,13 +110,30 @@ def story():
     user_id = request.POST.get("user")
     current_adv_id = request.POST.get("adventure")
     next_story_id = request.POST.get("next") #this is what the user chose - use it!
-    next_steps_results = [
-        {"id": 1, "option_text": "I run!"},
-        {"id": 2, "option_text": "I hide!"},
-        {"id": 3, "option_text": "I sleep!"},
-        {"id": 4, "option_text": "I fight!"}
-        ]
-    random.shuffle(next_steps_results) #todo change - used only for demonstration purpouses
+
+
+
+    connection = pymysql.connect(host='localhost',
+                                 user='root',
+                                 password='',
+                                 db='adventure',
+                                 cursorclass=pymysql.cursors.DictCursor)
+
+    with connection.cursor() as cursor:
+        opt1 = "SELECT target_question as `id` , opt_text as option_text FROM options WHERE question_id = (select last_current_question FROM users WHERE id ='{}'".format(user_id)
+        cursor.execute(opt1)
+        result = cursor.fetchall()
+        print(json.dumps(result))
+
+        next_steps_results =result
+
+        # next_steps_results = [
+        #     {"id": 1, "option_text": result},
+        #     {"id": 2, "option_text": "I hide!"},
+        #     {"id": 3, "option_text": "I sleep!"},
+        #     {"id": 4, "option_text": "I fight!"}
+        # ]
+        # random.shuffle(next_steps_results)  # todo change - used only for demonstration purpouses
 
     #todo add the next step based on db
     return json.dumps({"user": user_id,
