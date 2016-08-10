@@ -36,7 +36,7 @@ def start():
             name = user['name']
             questionId = user['last_current_question']
 
-            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format('id')
+            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}'".format('id')
             cursor.execute(sql)
             result = cursor.fetchall()
             return result
@@ -53,37 +53,34 @@ def start():
             connection.commit()
             print(sql)
 
-            sql2 = "SELECT id FROM users WHERE id = '{}')".format('current_question_id')
+            sql2 = "SELECT id FROM users WHERE name = '{}'".format('username')
             cursor.execute(sql2)
             print('Your are killing my brain')
-            user_id = cursor.fetchall()
+            user_id = cursor.fetchone()
             print(sql2)
 
 
-            sql3 = "SELECT id FROM questions WHERE id = '{}')".format('current_question_id')
+            sql3 = "SELECT id FROM questions WHERE id = '{}'".format(current_question_id)
             cursor.execute(sql3)
             current_story_id = cursor.fetchone()
             print(sql3)
 
-            sql4 = "SELECT opt_text FROM options WHERE question_id = (SELECT id FROM questions WHERE id = (SELECT last_current_question FROM users WHERE id = '{}')".format('current_question_id')
+            sql4 = "SELECT opt_text FROM options o LEFT JOIN questions q on o.question_id = q.id join users u on q.id=u.last_current_question and u.id=0".format(current_question_id)
             cursor.execute(sql4)
             option_text= cursor.fetchall()
             print(sql4)
 
-            sql5 = "SELECT image FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format('current_question_id')
+            sql5 = "SELECT image FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
             cursor.execute(sql5)
             picture = cursor.fetchall()
             print(sql5)
 
-
-            cursor.execute(sql2)
-            result = cursor.fetchall()
             return json.dumps({"user": user_id,
                                "adventure": current_adv_id,
                                "current": current_story_id,
                                "text": option_text,
                                "image": picture,
-                               "options": next_steps_results
+                               # "options": next_steps_results
                                })
 
 
