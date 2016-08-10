@@ -22,24 +22,47 @@ def start():
                                  password='',
                                  db='adventure',
                                  cursorclass=pymysql.cursors.DictCursor)
-    print('Hello fucker')
+
     with connection.cursor() as cursor:
-        sql = "SELECT * FROM users WHERE name = '{}'".format('username')
+        sql = "SELECT * FROM users WHERE name = '{}'".format(username)
         cursor.execute(sql)
         result = cursor.fetchall()
-        print(json.dumps(result))
-        print("yea")
         #if user already exists get his info
+
         if len(result) > 0:
+            current_adv_id = 1
+            print("The user is already existing")
             user = result[0]
             id = user['id']
             name = user['name']
             questionId = user['last_current_question']
 
-            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}'".format('id')
+            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(id)
             cursor.execute(sql)
-            result = cursor.fetchall()
-            return result
+            result1 = cursor.fetchall()
+            # print(result1[0])
+            # print(result1[0]['image'])
+            # print(user['id'])
+            # print(questionId)
+
+
+            sql_options = "SELECT `target_question` AS `id`,`opt_text` AS `option_text` FROM options WHERE question_id=(SELECT last_current_question FROM users WHERE id = '{}')".format(id)
+            cursor.execute(sql_options)
+            result2 = cursor.fetchall()
+            #print(result2['opt_text'])
+            # [x['opt_text'] for x in result2]
+
+            next_steps_results = result2
+
+            return json.dumps({"user": user['id'],
+                               "adventure": current_adv_id,
+                               "current": questionId ,
+                               "text": result1[0]['question'],
+                               "image": result1[0]['image'],
+                               "options": next_steps_results
+                               })
+            # print("The format of info you are sending is not good")
+
 
         #if user is new create user data
         else:
