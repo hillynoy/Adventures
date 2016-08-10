@@ -43,7 +43,7 @@ def start():
 
         #if user is new create user data
         else:
-            print("fuck you")
+            print("you")
 
             current_adv_id = 1
             current_question_id = 1
@@ -55,7 +55,8 @@ def start():
 
             sql2 = "SELECT id FROM users WHERE id = '{}')".format('current_question_id')
             cursor.execute(sql2)
-            user_id = cursor.fetchone()
+            print('Your are killing my brain')
+            user_id = cursor.fetchall()
             print(sql2)
 
 
