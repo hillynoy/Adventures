@@ -142,13 +142,13 @@ def story():
                                  cursorclass=pymysql.cursors.DictCursor)
 
     with connection.cursor() as cursor:
-        opt1 = "SELECT target_question as `id` , opt_text as option_text FROM options WHERE question_id = (select last_current_question FROM users WHERE id ='{}'".format(user_id)
+        opt1 = "SELECT target_question as `id` , opt_text as option_text FROM options WHERE question_id = (select last_current_question FROM users WHERE id ='{}')".format(user_id)
         cursor.execute(opt1)
         result = cursor.fetchall()
         print(json.dumps(result))
 
         next_steps_results =result
-        print('hello')
+
 
         # next_steps_results = [
         #     {"id": 1, "option_text": result},

@@ -25,7 +25,7 @@ Adventures.bindErrorHandlers = function () {
     });
 };
 
-
+ console.log("Yo")
 //The core function of the app, sends the user's choice and then parses the results to the server and handling the response
 Adventures.chooseOption = function(){
     Adventures.currentStep = $(this).val();
