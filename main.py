@@ -192,8 +192,7 @@ def start():
 def story():
     user_id = request.POST.get("user")
     current_adv_id = request.POST.get("adventure")
-    next_story_id = request.POST.get("next") #this is what the user chose - use it!
-
+    next_question = request.POST.get("next") #this is what the user chose - use it!
 
 
     connection = pymysql.connect(host='localhost',
@@ -202,31 +201,39 @@ def story():
                                  db='adventure',
                                  cursorclass=pymysql.cursors.DictCursor)
 
+
     with connection.cursor() as cursor:
-        opt1 = "SELECT target_question as `id` , opt_text as option_text FROM options WHERE question_id = (select last_current_question FROM users WHERE id ='{}')".format(user_id)
-        cursor.execute(opt1)
-        result = cursor.fetchall()
-        print(json.dumps(result))
+        sql= "SELECT id FROM questions WHERE id = (SELECT last_current_question FROM users WHERE id={})".format(user_id)
+        cursor.execute(sql)
+        question_id1 = cursor.fetchone()
 
-        next_steps_results =result
+        question = "SELECT question FROM questions WHERE id =(select question_id from options where target_question={})".format(next_question)
+        cursor.execute(question)
+        questiontext = cursor.fetchone()
 
 
-        # next_steps_results = [
-        #     {"id": 1, "option_text": result},
-        #     {"id": 2, "option_text": "I hide!"},
-        #     {"id": 3, "option_text": "I sleep!"},
-        #     {"id": 4, "option_text": "I fight!"}
-        # ]
-        # random.shuffle(next_steps_results)  # todo change - used only for demonstration purpouses
+
+        # sql = "SELECT question FROM questions WHERE id = (SELECT last_current_question FROM users WHERE id ='{}')".format(user_id)
+        # cursor.execute(sql)
+        # questiontext = cursor.fetchone()
+        # questiontext = question
+
+
+        # bubu = "SELECT opt_text FROM options WHERE question_id =(SELECT id FROM questions WHERE id={})".format(user_id)
+        bubu = "SELECT opt_text FROM options WHERE question_id=(SELECT id  FROM questions WHERE id ={})".format(next_question)
+        cursor.execute(bubu)
+        next_steps_results = cursor.fetchall()
+
+        print(next_steps_results)
+
 
     #todo add the next step based on db
     return json.dumps({"user": user_id,
                        "adventure": current_adv_id,
-                       "text": "New scenario! What would you do?",
+                       "text": questiontext['question'],
                        "image": "choice.jpg",
                        "options": next_steps_results
                        })
-
 
 
 
