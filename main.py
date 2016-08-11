@@ -148,6 +148,7 @@ def story():
         print(json.dumps(result))
 
         next_steps_results =result
+        print('hello')
 
         # next_steps_results = [
         #     {"id": 1, "option_text": result},
