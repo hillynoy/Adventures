@@ -46,6 +46,16 @@ def getUserByName(userName):
         print("I got error " + repr(e))
 
 
+def createANewUser(username, current_question_id):
+    try:
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO users (name, last_current_question) VALUES (%s, %s)"
+            cursor.execute(sql, (username, current_question_id))
+            connection.commit()
+    except Exception as e:
+        print("I got error " + repr(e))
+
+
 @route("/start", method="POST")
 def start():
     username = request.POST.get("name")
@@ -55,7 +65,9 @@ def start():
     if user:
         questionId = user['last_current_question']
     else:
-        questionId = 1
+        questionId = 0
+        createANewUser(username, questionId)
+        user = getUserByName(username)
 
     result = getQuestion(questionId)
     result["user"] = user['id']
