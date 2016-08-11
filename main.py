@@ -50,11 +50,12 @@ def start():
             cursor.execute(sql_options)
             result2 = cursor.fetchall()
             #print(result2['opt_text'])
+
             # [x['opt_text'] for x in result2]
 
             next_steps_results = result2
-
-            return json.dumps({"user": user['id'],
+            print(user['id'])
+            return json.dumps({"user": id,
                                "adventure": current_adv_id,
                                "current": questionId ,
                                "text": result1[0]['question'],
@@ -74,39 +75,37 @@ def start():
             sql = "INSERT INTO users (name, last_current_question) VALUES (%s, %s)"
             cursor.execute(sql, (username, current_question_id))
             connection.commit()
-            print(sql)
+
 
             sql2 = "SELECT id FROM users WHERE name = '{}'".format(username)
             cursor.execute(sql2)
             print('Your are killing my brain')
             user_id = cursor.fetchone()
-            print(sql2)
+
 
 
             sql3 = "SELECT id FROM questions WHERE id = '{}'".format(current_question_id)
             cursor.execute(sql3)
             current_story_id = cursor.fetchone()
-            print(sql3)
+
 
             sql4 = "SELECT opt_text FROM options o LEFT JOIN questions q on o.question_id = q.id join users u on q.id=u.last_current_question and u.id='{}'".format(current_question_id)
             cursor.execute(sql4)
             option_text= cursor.fetchall()
-            print(sql4)
+
 
             sql5 = "SELECT image FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
             cursor.execute(sql5)
             picture = cursor.fetchall()
-            print(sql5)
+
 
             sql6 = "SELECT target_question FROM options WHERE question_id =(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
             cursor.execute(sql6)
             next_steps_results = cursor.fetchall()
-            print(sql6)
-
-
-            return json.dumps({"user": user_id,
+            print(option_text[0][0])
+            return json.dumps({"user": user_id['id'],
                                "adventure": current_adv_id,
-                               "current": current_story_id,
+                               "current": current_story_id['id'],
                                "text": option_text,
                                "image": picture,
                                "options": next_steps_results
