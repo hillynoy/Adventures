@@ -9,119 +9,168 @@ def index():
     return template("adventure.html")
 
 
+connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='',
+                             db='adventure',
+                             cursorclass=pymysql.cursors.DictCursor)
+
+def getQuestion(qid):
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM questions WHERE id={}".format(qid)
+            cursor.execute(sql)
+            question = cursor.fetchone()
+
+            print("I am here " + str(question))
+
+            sql_options = "SELECT `target_question` AS `id`,`opt_text` AS `option_text` FROM options WHERE question_id= {}".format(qid)
+            cursor.execute(sql_options)
+            options = cursor.fetchall()
+
+            print("I am here " + str(options))
+
+            return {"current": qid ,"text": question['question'],"image": question['image'],"options": options}
+
+    except Exception as e:
+        print ("I got error " + repr(e))
+
+def getUserByName(userName):
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM users WHERE name = '{}'".format(userName)
+            cursor.execute(sql)
+            user = cursor.fetchone()
+            return user
+    except Exception as e:
+        print("I got error " + repr(e))
+
+
 @route("/start", method="POST")
 def start():
     username = request.POST.get("name")
     current_adv_id = request.POST.get("adventure_id")
+    current_adv_id = 1
+    user = getUserByName(username)
+    if user:
+        questionId = user['last_current_question']
+    else:
+        questionId = 1
 
+    result = getQuestion(questionId)
+    result["user"] = user['id']
+    result["adventure"] = current_adv_id
+    return json.dumps(result)
 
-    user_id = 0 #todo check if exists and if not create it
-    print('Hello ')
-    connection = pymysql.connect(host='localhost',
-                                 user='root',
-                                 password='',
-                                 db='adventure',
-                                 cursorclass=pymysql.cursors.DictCursor)
-
-    with connection.cursor() as cursor:
-        sql = "SELECT * FROM users WHERE name = '{}'".format(username)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        #if user already exists get his info
-
-        if len(result) > 0:
-            current_adv_id = 1
-            print("The user is already existing")
-            user = result[0]
-            id = user['id']
-            name = user['name']
-            questionId = user['last_current_question']
-
-            sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(id)
-            cursor.execute(sql)
-            result1 = cursor.fetchall()
-            # print(result1[0])
-            # print(result1[0]['image'])
-            # print(user['id'])
-            # print(questionId)
-
-
-            sql_options = "SELECT `target_question` AS `id`,`opt_text` AS `option_text` FROM options WHERE question_id=(SELECT last_current_question FROM users WHERE id = '{}')".format(id)
-            cursor.execute(sql_options)
-            result2 = cursor.fetchall()
-            #print(result2['opt_text'])
-
-            # [x['opt_text'] for x in result2]
-
-            next_steps_results = result2
-            print(user['id'])
-            return json.dumps({"user": id,
-                               "adventure": current_adv_id,
-                               "current": questionId ,
-                               "text": result1[0]['question'],
-                               "image": result1[0]['image'],
-                               "options": next_steps_results
-                               })
-            # print("The format of info you are sending is not good")
-
-
-        #if user is new create user data
-        else:
-            print("you")
-
-            current_adv_id = 1
-            current_question_id = 1
-            
-            sql = "INSERT INTO users (name, last_current_question) VALUES (%s, %s)"
-            cursor.execute(sql, (username, current_question_id))
-            connection.commit()
-
-
-            sql2 = "SELECT id FROM users WHERE name = '{}'".format(username)
-            cursor.execute(sql2)
-            print('Your are killing my brain')
-            user_id = cursor.fetchone()
-
-
-
-            sql3 = "SELECT id FROM questions WHERE id = '{}'".format(current_question_id)
-            cursor.execute(sql3)
-            current_story_id = cursor.fetchone()
-
-
-            sql4 = "SELECT opt_text FROM options o LEFT JOIN questions q on o.question_id = q.id join users u on q.id=u.last_current_question and u.id='{}'".format(current_question_id)
-            cursor.execute(sql4)
-            option_text= cursor.fetchall()
-
-
-            sql5 = "SELECT image FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
-            cursor.execute(sql5)
-            picture = cursor.fetchall()
-
-
-            sql6 = "SELECT target_question FROM options WHERE question_id =(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
-            cursor.execute(sql6)
-            next_steps_results = cursor.fetchall()
-            print(option_text[0][0])
-            return json.dumps({"user": user_id['id'],
-                               "adventure": current_adv_id,
-                               "current": current_story_id['id'],
-                               "text": option_text,
-                               "image": picture,
-                               "options": next_steps_results
-                               })
-
-
-
-    # current_story_id = 0 #todo change
-    # next_steps_results = [
-    #     {"id": 1, "option_text": "I fight it"},
-    #     {"id": 2, "option_text": "I give him 10 coins"},
-    #     {"id": 3, "option_text": "I tell it that I just want to go home"},
-    #     {"id": 4, "option_text": "I run away quickly"}
-    #     ]
-
-    #todo add the next step based on db
+    #
+    # user_id = 0 #todo check if exists and if not create it
+    # print('Hello ')
+    #
+    #
+    # with connection.cursor() as cursor:
+    #     sql = "SELECT * FROM users WHERE name = '{}'".format(username)
+    #     cursor.execute(sql)
+    #     result = cursor.fetchall()
+    #     #if user already exists get his info
+    #     userExists = len(result) > 0
+    #     if userExists:
+    #         current_adv_id = 1
+    #         print("The user is already existing")
+    #         user = result[0]
+    #         id = user['id']
+    #         name = user['name']
+    #         questionId = user['last_current_question']
+    #
+    #         # sql = "SELECT * FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(id)
+    #         # cursor.execute(sql)
+    #         # result1 = cursor.fetchall()
+    #         # # print(result1[0])
+    #         # # print(result1[0]['image'])
+    #         # # print(user['id'])
+    #         # # print(questionId)
+    #         #
+    #         #
+    #         # sql_options = "SELECT `target_question` AS `id`,`opt_text` AS `option_text` FROM options WHERE question_id=(SELECT last_current_question FROM users WHERE id = '{}')".format(id)
+    #         # cursor.execute(sql_options)
+    #         # result2 = cursor.fetchall()
+    #         # #print(result2['opt_text'])
+    #         #
+    #         # # [x['opt_text'] for x in result2]
+    #         #
+    #         # next_steps_results = result2
+    #         # print(next_steps_results)
+    #
+    #         result = getQuestion(questionId)
+    #         result["user"] = id
+    #         result["adventure"] = current_adv_id
+    #         return json.dumps(result)
+    #         # {"user": id,
+    #         #                    "adventure": current_adv_id,
+    #         #                    "current": questionId ,
+    #         #                    "text": result1[0]['question'],
+    #         #                    "image": result1[0]['image'],
+    #         #                    "options": next_steps_results
+    #         #                    })
+    #         # print("The format of info you are sending is not good")
+    #
+    #
+    #     #if user is new create user data
+    #     else:
+    #         print("you")
+    #
+    #         current_adv_id = 1
+    #         current_question_id = 1
+    #
+    #         sql = "INSERT INTO users (name, last_current_question) VALUES (%s, %s)"
+    #         cursor.execute(sql, (username, current_question_id))
+    #         connection.commit()
+    #
+    #
+    #         sql2 = "SELECT id FROM users WHERE name = '{}'".format(username)
+    #         cursor.execute(sql2)
+    #         print('Your are killing my brain')
+    #         user_id = cursor.fetchone()
+    #
+    #
+    #
+    #         sql3 = "SELECT id FROM questions WHERE id = '{}'".format(current_question_id)
+    #         cursor.execute(sql3)
+    #         current_story_id = cursor.fetchone()
+    #
+    #
+    #         sql4 = "SELECT opt_text FROM options o LEFT JOIN questions q on o.question_id = q.id join users u on q.id=u.last_current_question and u.id='{}'".format(current_question_id)
+    #         cursor.execute(sql4)
+    #         option_text= cursor.fetchall()
+    #
+    #
+    #         sql5 = "SELECT image FROM questions WHERE id=(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
+    #         cursor.execute(sql5)
+    #         picture = cursor.fetchall()
+    #
+    #
+    #         sql6 = "SELECT target_question FROM options WHERE question_id =(SELECT last_current_question FROM users WHERE id = '{}')".format(current_question_id)
+    #         cursor.execute(sql6)
+    #         next_steps_results = cursor.fetchall()
+    #         print(option_text)
+    #         return json.dumps({"user": user_id['id'],
+    #                            "adventure": current_adv_id,
+    #                            "current": current_story_id['id'],
+    #                            "text": option_text,
+    #                            "image": picture,
+    #                            "options": next_steps_results
+    #                            })
+    #
+    #
+    #
+    # # current_story_id = 0 #todo change
+    # # next_steps_results = [
+    # #     {"id": 1, "option_text": "I fight it"},
+    # #     {"id": 2, "option_text": "I give him 10 coins"},
+    # #     {"id": 3, "option_text": "I tell it that I just want to go home"},
+    # #     {"id": 4, "option_text": "I run away quickly"}
+    # #     ]
+    #
+    # #todo add the next step based on db
 
     connection.close
 
