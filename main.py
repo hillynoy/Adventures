@@ -72,6 +72,7 @@ def start():
     result = getQuestion(questionId)
     result["user"] = user['id']
     result["adventure"] = current_adv_id
+    print(json.dumps(result))
     return json.dumps(result)
 
     #
@@ -207,7 +208,7 @@ def story():
         cursor.execute(sql)
         question_id1 = cursor.fetchone()
 
-        question = "SELECT question FROM questions WHERE id =(select question_id from options where target_question={})".format(next_question)
+        question = "SELECT q.question FROM questions q LEFT JOIN options o ON q.id=o.target_question WHERE q.id={}".format(next_question)
         cursor.execute(question)
         questiontext = cursor.fetchone()
 
@@ -220,19 +221,24 @@ def story():
 
 
         # bubu = "SELECT opt_text FROM options WHERE question_id =(SELECT id FROM questions WHERE id={})".format(user_id)
-        bubu = "SELECT opt_text FROM options WHERE question_id=(SELECT id  FROM questions WHERE id ={})".format(next_question)
+        bubu= "SELECT opt_text as option_text FROM options WHERE question_id=(SELECT id  FROM questions WHERE id={})".format(next_question)
         cursor.execute(bubu)
-        next_steps_results = cursor.fetchall()
+        next_steps_results_bubu = cursor.fetchall()
 
-        print(next_steps_results)
 
+
+        print(questiontext['question'])
+        print(len(next_steps_results_bubu))
+        print(type(next_steps_results_bubu))
+
+        print(next_steps_results_bubu)
 
     #todo add the next step based on db
     return json.dumps({"user": user_id,
                        "adventure": current_adv_id,
                        "text": questiontext['question'],
                        "image": "choice.jpg",
-                       "options": next_steps_results
+                       "options": next_steps_results_bubu
                        })
 
 
