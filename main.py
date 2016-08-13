@@ -196,7 +196,7 @@ def story():
     user_id = request.POST.get("user")
     current_adv_id = request.POST.get("adventure")
     next_question = request.POST.get("next") #this is what the user chose - use it!
-    print(next_question)
+    # print(next_question)
 
 
     connection = pymysql.connect(host='localhost',
@@ -207,9 +207,9 @@ def story():
 
 
     with connection.cursor() as cursor:
-        sql= "SELECT id FROM questions WHERE id = (SELECT last_current_question FROM users WHERE id={})".format(user_id)
+        sql= "SELECT image FROM questions WHERE id ={}".format(next_question)
         cursor.execute(sql)
-        question_id1 = cursor.fetchone()
+        image_story = cursor.fetchone()
 
         question = "SELECT q.question FROM questions q LEFT JOIN options o ON q.id=o.target_question WHERE q.id={}".format(next_question)
         cursor.execute(question)
@@ -228,17 +228,13 @@ def story():
         cursor.execute(bubu)
         next_steps_results_bubu = cursor.fetchall()
 
-
-
-        print(questiontext['question'])
-
         print(next_steps_results_bubu)
 
     #todo add the next step based on db
     return json.dumps({"user": user_id,
                        "adventure": current_adv_id,
                        "text": questiontext['question'],
-                       "image": "choice.jpg",
+                       "image": image_story['image'],
                        "options": next_steps_results_bubu
                        })
 
