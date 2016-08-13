@@ -21,8 +21,11 @@ def getQuestion(qid):
             sql = "SELECT * FROM questions WHERE id={}".format(qid)
             cursor.execute(sql)
             question = cursor.fetchone()
+            print(question)
 
             print("I am here " + str(question))
+
+            print(question['image'])
 
             sql_options = "SELECT `target_question` AS `id`,`opt_text` AS `option_text` FROM options WHERE question_id= {}".format(qid)
             cursor.execute(sql_options)
@@ -30,7 +33,7 @@ def getQuestion(qid):
 
             print("I am here " + str(options))
 
-            return {"current": qid ,"text": question['question'],"image": question['image'],"options": options}
+            return {"current": qid ,"text": question['question'],"image": str(question['image']),"options": options}
 
     except Exception as e:
         print ("I got error " + repr(e))

@@ -37,8 +37,10 @@ text-align:center;
 .name-text{
     display: inline-block;
 }
-
-
+img#situation-image {
+    height: 200px;
+    width:auto;
+}
 
 
 .option-select{
@@ -55,9 +57,6 @@ text-align:center;
 	text-align: center;
 	display: block;
 }
-
-
-
 
 .copyright{
     position: fixed;

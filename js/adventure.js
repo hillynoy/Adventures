@@ -55,7 +55,7 @@ Adventures.write = function (message) {
         console.log(message['options']);
         opt.prop("value", message['options'][i]['id']);
     }
-    Adventures.setImage(message["image"]);
+    Adventures.setImage(message['image']);
 };
 
 
