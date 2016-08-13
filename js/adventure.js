@@ -4,7 +4,7 @@ Adventures.currentAdventure = 1; //todo keep track from db
 // //currentStep is used for the step we're currently on (id). This should be determined at every crossroad, depending on what the user chose
 Adventures.currentStep = 0;//todo keep track from db
 Adventures.currentUser = 0;//todo keep track from db
-Adventures.questionId = 0
+Adventures.questionId = 0;
 
 //TODO: remove for production
 Adventures.debugMode = true;
@@ -25,12 +25,12 @@ Adventures.bindErrorHandlers = function () {
     });
 };
 
- console.log("Yo");
+
 //The core function of the app, sends the user's choice and then parses the results to the server and handling the response
 Adventures.chooseOption = function(){
     Adventures.currentStep = $(this).val();
     
-    console.log(Adventures.currentStep);
+    
     $.ajax("/story",{
         type: "POST",
         data: {"user": Adventures.currentUser,
@@ -48,10 +48,11 @@ Adventures.chooseOption = function(){
 
 Adventures.write = function (message) {
     //Writing new choices and image to screen
-    $(".situation-text").text(message["text"]).show();
+    $(".situation-text").text(message["text"]).show(); //sending the question text to the user (from the db)
     for(var i=0;i<message['options'].length;i++){
         var opt = $("#option_" + (i+1));
         opt.text(message['options'][i]['option_text']);
+        console.log(message['options']);
         opt.prop("value", message['options'][i]['id']);
     }
     Adventures.setImage(message["image"]);
@@ -102,9 +103,9 @@ Adventures.initAdventure = function(){
             Adventures.currentUser = data.user;
             Adventures.questionId = data.current;
 
-            console.log(data);
-            console.log("this is the current question id: " + data.current);
-            console.log("this is the current user id: " + data.user)
+            // console.log(data);
+            // console.log("this is the current question id: " + data.current);
+            // console.log("this is the current user id: " + data.user)
 
         }
     });

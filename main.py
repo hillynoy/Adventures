@@ -72,7 +72,6 @@ def start():
     result = getQuestion(questionId)
     result["user"] = user['id']
     result["adventure"] = current_adv_id
-    print(json.dumps(result))
     return json.dumps(result)
 
     #
@@ -194,6 +193,7 @@ def story():
     user_id = request.POST.get("user")
     current_adv_id = request.POST.get("adventure")
     next_question = request.POST.get("next") #this is what the user chose - use it!
+    print(next_question)
 
 
     connection = pymysql.connect(host='localhost',
@@ -221,15 +221,13 @@ def story():
 
 
         # bubu = "SELECT opt_text FROM options WHERE question_id =(SELECT id FROM questions WHERE id={})".format(user_id)
-        bubu= "SELECT opt_text as option_text FROM options WHERE question_id=(SELECT id  FROM questions WHERE id={})".format(next_question)
+        bubu= "SELECT `target_question` AS `id`,opt_text as option_text FROM options WHERE question_id=(SELECT id  FROM questions WHERE id={})".format(next_question)
         cursor.execute(bubu)
         next_steps_results_bubu = cursor.fetchall()
 
 
 
         print(questiontext['question'])
-        print(len(next_steps_results_bubu))
-        print(type(next_steps_results_bubu))
 
         print(next_steps_results_bubu)
 
