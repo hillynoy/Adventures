@@ -49,11 +49,11 @@ def getUserByName(userName):
         print("I got error " + repr(e))
 
 
-def createANewUser(username, current_question_id):
+def createANewUser(username, current_question_id,money,life):
     try:
         with connection.cursor() as cursor:
-            sql = "INSERT INTO users (name, last_current_question) VALUES (%s, %s)"
-            cursor.execute(sql, (username, current_question_id))
+            sql = "INSERT INTO users (name, last_current_question,money,life) VALUES (%s, %s,%s,%s)"
+            cursor.execute(sql, (username, current_question_id,money,life))
             connection.commit()
     except Exception as e:
         print("I got error " + repr(e))
@@ -69,7 +69,9 @@ def start():
         questionId = user['last_current_question']
     else:
         questionId = 0
-        createANewUser(username, questionId)
+        money = 50
+        life = 100
+        createANewUser(username, questionId,money,life)
         user = getUserByName(username)
 
     result = getQuestion(questionId)
