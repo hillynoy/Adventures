@@ -10,11 +10,18 @@ def index():
 
 
 
-connection = pymysql.connect(host='us-cdbr-iron-east-04.cleardb.net',
-                             user='b6ee3acc3f7c3f',
-                             password='acf8f8b3',
-                             db='heroku_33355daa327cdcc',
-                             cursorclass=pymysql.cursors.DictCursor)
+# connection = pymysql.connect(host='us-cdbr-iron-east-04.cleardb.net',
+#                              user='b6ee3acc3f7c3f',
+#                              password='acf8f8b3',
+#                              db='heroku_33355daa327cdcc',
+#                              cursorclass=pymysql.cursors.DictCursor)
+
+
+connection = pymysql.connect(host='localhost',
+                                 user='root',
+                                 password='',
+                                 db='adventure',
+                                 cursorclass=pymysql.cursors.DictCursor)
 
 def getQuestion(qid):
     try:
@@ -68,6 +75,7 @@ def start():
     user = getUserByName(username)
     if user:
         questionId = user['last_current_question']
+        print(questionId)
     else:
         questionId = 0
         money = 50
@@ -193,13 +201,12 @@ def start():
     connection.close
 
 
-
 @route("/story", method="POST")
 def story():
     user_id = request.POST.get("user")
     current_adv_id = request.POST.get("adventure")
     next_question = request.POST.get("next") #this is what the user chose - use it!
-    # print(next_question)
+    print("Show me that"+str(next_question))
 
     #
     # connection = pymysql.connect(host='localhost',
@@ -208,9 +215,13 @@ def story():
     #                              db='adventure',
     #                              cursorclass=pymysql.cursors.DictCursor)
 
-
     with connection.cursor() as cursor:
-        sql= "SELECT image FROM questions WHERE id ={}".format(next_question)
+
+        sql2 = "UPDATE users SET last_current_question={} WHERE id={}".format(next_question,user_id)
+        cursor.execute(sql2)
+        connection.commit()
+
+        sql = "SELECT image FROM questions WHERE id ={}".format(next_question)
         cursor.execute(sql)
         image_story = cursor.fetchone()
 
@@ -258,8 +269,8 @@ def images(filename):
     return static_file(filename, root='images')
 
 def main():
-    #run(host='localhost', port=9000)
-    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    run(host='localhost', port=9000)
+    # run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
 if __name__ == '__main__':
     main()
