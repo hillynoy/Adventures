@@ -2,17 +2,18 @@ from bottle import route, run, template, static_file, request
 import random
 import json
 import pymysql
-
+import os
 
 @route("/", method="GET")
 def index():
     return template("adventure.html")
 
 
-connection = pymysql.connect(host='localhost',
-                             user='root',
-                             password='',
-                             db='adventure',
+
+connection = pymysql.connect(host='sql210.byethost9.com',
+                             user='b9_18650328',
+                             password='dansamama',
+                             db='b9_18650328_adventure',
                              cursorclass=pymysql.cursors.DictCursor)
 
 def getQuestion(qid):
@@ -200,12 +201,12 @@ def story():
     next_question = request.POST.get("next") #this is what the user chose - use it!
     # print(next_question)
 
-
-    connection = pymysql.connect(host='localhost',
-                                 user='root',
-                                 password='',
-                                 db='adventure',
-                                 cursorclass=pymysql.cursors.DictCursor)
+    #
+    # connection = pymysql.connect(host='localhost',
+    #                              user='root',
+    #                              password='',
+    #                              db='adventure',
+    #                              cursorclass=pymysql.cursors.DictCursor)
 
 
     with connection.cursor() as cursor:
@@ -257,7 +258,8 @@ def images(filename):
     return static_file(filename, root='images')
 
 def main():
-    run(host='localhost', port=9000)
+    #run(host='localhost', port=9000)
+    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
 if __name__ == '__main__':
     main()
