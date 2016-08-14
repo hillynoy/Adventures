@@ -27,15 +27,18 @@ Adventures.bindErrorHandlers = function () {
 
 
 //The core function of the app, sends the user's choice and then parses the results to the server and handling the response
-Adventures.chooseOption = function(){
+Adventures.chooseOption = function () {
     Adventures.currentStep = $(this).val();
-    
-    
-    $.ajax("/story",{
+
+
+    $.ajax("/story", {
         type: "POST",
-        data: {"user": Adventures.currentUser,
+        data: {
+            "user": Adventures.currentUser,
             "adventure": Adventures.currentAdventure,
-            "next": Adventures.currentStep},
+            "next": Adventures.currentStep,
+            "opt_id": $(this).attr("opt_id")
+        },
         dataType: "json",
         contentType: "application/json",
         success: function (data) {
@@ -49,17 +52,35 @@ Adventures.chooseOption = function(){
 Adventures.write = function (message) {
     //Writing new choices and image to screen
     $(".situation-text").text(message["text"]).show(); //sending the question text to the user (from the db)
-    for(var i=0;i<message['options'].length;i++){
-        var opt = $("#option_" + (i+1));
-        opt.text(message['options'][i]['option_text']);
-        console.log(message['options']);
-        opt.prop("value", message['options'][i]['id']);
+    if (message['options'].length == 0) {
+        for (var i = 0; i < 4; i++)
+            $("#option_" + (i + 1)).hide();
+        $('.greeting-text').text(message["text"]);
+        $(".situation-text").text(message["text"]).hide();
+    }
+    else {
+        $(".situation-text").text(message["text"]).show();
+        for (var i = 0; i < message['options'].length; i++) {
+            var opt = $("#option_" + (i + 1));
+            opt.text(message['options'][i]['opt_text']);
+            console.log(message['options']);
+            opt.prop("value", message['options'][i]['target_question']);
+            opt.attr("opt_id", message['options'][i]['id']);
+        }
     }
     Adventures.setImage(message['image']);
+    Adventures.setLife(message['life']);
+    Adventures.setMoney(message['money']);
 };
 
+Adventures.setLife = function (life) {
+    $('#life').text(life);
+}
+Adventures.setMoney = function (money) {
+    $('#money').text(money);
+}
 
-Adventures.start = function(){
+Adventures.start = function () {
     $(document).ready(function () {
         $(".game-option").click(Adventures.chooseOption);
         $("#nameField").keyup(Adventures.checkName);
@@ -74,22 +95,22 @@ Adventures.setImage = function (img_name) {
     $("#situation-image").attr("src", "./images/" + img_name);
 };
 
-Adventures.checkName = function(){
-    if($(this).val() !== undefined && $(this).val() !== null && $(this).val() !== ""){
+Adventures.checkName = function () {
+    if ($(this).val() !== undefined && $(this).val() !== null && $(this).val() !== "") {
         $(".adventure-button").prop("disabled", false);
     }
-    else{
+    else {
         $(".adventure-button").prop("disabled", true);
     }
 };
 
 
-Adventures.initAdventure = function(){
+Adventures.initAdventure = function () {
 
-    $.ajax("/start",{
+    $.ajax("/start", {
         type: "POST",
-        data: {"name":
-            $("#nameField").val(),
+        data: {
+            "name": $("#nameField").val(),
             "adventure_id": $(this).val()
         },
         dataType: "json",
@@ -102,7 +123,8 @@ Adventures.initAdventure = function(){
 
             Adventures.currentUser = data.user;
             Adventures.questionId = data.current;
-
+            $('#money').text('50');
+            $('#life').text('100');
             // console.log(data);
             // console.log("this is the current question id: " + data.current);
             // console.log("this is the current user id: " + data.user)
@@ -128,4 +150,3 @@ Adventures.debugPrint = function (msg) {
 };
 
 Adventures.start();
-
