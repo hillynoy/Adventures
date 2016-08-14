@@ -10,10 +10,10 @@ def index():
 
 
 
-connection = pymysql.connect(host='sql210.byethost9.com',
-                             user='b9_18650328',
-                             password='dansamama',
-                             db='b9_18650328_adventure',
+connection = pymysql.connect(host='us-cdbr-iron-east-04.cleardb.net',
+                             user='b6ee3acc3f7c3f',
+                             password='acf8f8b3',
+                             db='heroku_33355daa327cdcc',
                              cursorclass=pymysql.cursors.DictCursor)
 
 def getQuestion(qid):
