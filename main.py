@@ -137,6 +137,7 @@ def story():
                        "options": next_steps_results_bubu,
                        "life": life_update,
                        "money": money_update
+                       # "question_id": next_question
                        })
 
 

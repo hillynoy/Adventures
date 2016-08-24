@@ -44,10 +44,29 @@ Adventures.chooseOption = function () {
         success: function (data) {
             console.log(data);
             $(".greeting-text").hide();
-            Adventures.write(data);
+                            Adventures.write(data);
+
+            // if (data.questionId = 100){
+            //     Adventures.ending(data);
+            // }
+            // else {
+            //     Adventures.write(data);
+            // }
         }
     });
 };
+
+
+// Adventures.ending = function (message) {
+//     //Writing new choices and image to screen
+//     $(".situation-text").text(message["text"]).show(); //sending the question text to the user (from the db)
+//
+//     Adventures.setImage(message['image']);
+//     Adventures.setLife(message['life']);
+//     Adventures.setMoney(message['money']);
+// };
+
+
 
 Adventures.write = function (message) {
     //Writing new choices and image to screen
@@ -56,7 +75,7 @@ Adventures.write = function (message) {
         for (var i = 0; i < 4; i++)
             $("#option_" + (i + 1)).hide();
         $('.greeting-text').text(message["text"]);
-        $(".situation-text").text(message["text"]).hide();
+        $(".situation-text").text(message["text"]).show();
     }
     else {
         $(".situation-text").text(message["text"]).show();
